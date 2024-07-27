@@ -1,0 +1,14 @@
+services:
+  #Gin APIサーバー
+  api:
+    container_name: GinAPI
+    build:
+      context: ./api
+      dockerfile: ../build/dockerfiles/api/Dockerfile
+    volumes:
+      - ./api:/api
+    ports:
+      - "8080:8080"
+    command: go run ./cmd/main.go
+    env_file:
+      - ./api.env
