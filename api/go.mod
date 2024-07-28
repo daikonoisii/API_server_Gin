@@ -1,4 +1,4 @@
-module gin-api-server
+module API_server_Gin/api
 
 go 1.22.2
 
