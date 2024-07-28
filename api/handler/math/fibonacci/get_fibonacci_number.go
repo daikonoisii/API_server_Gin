@@ -1,21 +1,23 @@
+// get_fibonacci_number.go
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
+	
 	fibonacci "API_server_Gin/api/libs/math/fibonacci"
 )
 
-func GetFibonacciNumber(responseWriter http.ResponseWriter, request *http.Request) {
+func GetFibonacciNumber(c *gin.Context) {
 	// クエリからfibonacci_indexの値を取得
-	fibonacciIndexStr := request.URL.Query().Get("fibonacci_index")
+	fibonacciIndexStr := c.Query("fibonacci_index")
 
 	// fibonacci_indexをintへ変換
 	fibonacciIndex, err := strconv.Atoi(fibonacciIndexStr)
 	if err != nil {
-		http.Error(responseWriter, "Invalid number format", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid number format"})
 		return
 	}
 
@@ -24,12 +26,10 @@ func GetFibonacciNumber(responseWriter http.ResponseWriter, request *http.Reques
 
 	// GenerateFibonacciNumberがリクセスとパラーメータを扱えなかったため、422エラーを発生させる
 	if err != nil {
-		http.Error(responseWriter, err.Error(), http.StatusUnprocessableEntity)
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
 	// レスポンスを作成し、Jsonへエンコード
-	resp := map[string]string{"fibonacci_number": result.String()}
-	responseWriter.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(responseWriter).Encode(resp)
+	c.JSON(http.StatusOK, gin.H{"fibonacci_number": result.String()})
 }
