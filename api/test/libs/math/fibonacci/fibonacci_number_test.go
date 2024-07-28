@@ -25,13 +25,13 @@ import (
 //		err (error) : エラー
 func TestGenerateFibonacciNumber(t *testing.T) {
 
-
-
+	//
+	// テストケースを定義
 	tests := []struct {
-		name        string
-		index       int16
-		expected    *big.Int
-		expectedErr error
+		name        string		// テストケース名
+		index       int16		// 入力値
+		expected    *big.Int	// 返り値の正規ラベル
+		expectedErr error		// エラーの正解ラベル
 	}{
 		{"FirstFibonacciNumber", 1, big.NewInt(1), nil},
 		{"SecondFibonacciNumber", 2, big.NewInt(1), nil},
@@ -41,23 +41,32 @@ func TestGenerateFibonacciNumber(t *testing.T) {
 		{"TenthFibonacciNumber", 10, big.NewInt(55), nil},
 		{"ZeroIndex", 0, big.NewInt(0), nil},
 		{"NegativeIndex", -1, big.NewInt(0), errors.New("invalid index: -1")},
-		{"LargeIndex", 99, bigint.ConvertFromString("218922995834555169026"), nil},
+		// 無名関数を使用してエラーを無視
+		{"LargeIndex", 99, func() *big.Int {
+			bigInt, _ := bigint.ConvertFromString("218922995834555169026")
+			return bigInt
+		}(), nil},
 	}
 
+	//全てのテストケースに対してテストを実行
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			result, err := fibonacci.GenerateFibonacciNumber(test.index)
-
+			
 			if err != nil {
+				// エラーが発生すべきではないケースでエラーが発生
 				if test.expectedErr == nil {
 					t.Errorf("%s: expected no error, got %v", test.name, err)
+				// 発生したエラーが想定と異なる
 				} else if err.Error() != test.expectedErr.Error() {
 					t.Errorf("%s: expected error %v, got %v", test.name, test.expectedErr, err)
 				}
+			// エラーが発生すべきなケースでエラーが発生しなかった
 			} else if test.expectedErr != nil {
 				t.Errorf("%s: expected error %v, got no error", test.name, test.expectedErr)
 			}
 
+			// 返り値が想定と異なる
 			if result.Cmp(test.expected) != 0 {
 				t.Errorf("%s: expected result %s, got %s", test.name, test.expected.String(), result.String())
 			}
